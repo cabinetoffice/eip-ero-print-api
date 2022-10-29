@@ -99,6 +99,7 @@ dependencies {
     // Libraries to support creating JWTs in tests
     testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    testImplementation("com.jcraft:jsch:0.1.55")
 }
 
 dependencyManagement {

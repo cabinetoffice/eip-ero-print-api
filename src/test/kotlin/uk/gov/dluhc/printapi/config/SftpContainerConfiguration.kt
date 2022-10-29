@@ -13,23 +13,25 @@ import java.net.URL
 class SftpContainerConfiguration {
 
     companion object {
-        private const val USER = "valtech"
-        private const val PASSWORD = "Password"
-        private const val PUBLIC_KEY_FILENAME = "ssh/id_rsa.pub"
-        private const val PRIVATE_KEY_FILENAME = "ssh/printer_rsa"
-        private const val PORT = 22
-        private const val IMAGE_NAME = "atmoz/sftp:debian"
-        private const val USER_ID = 1001
-        private const val GROUP_ID = 100
-        private val DIRECTORIES = listOf("EROP/Dev/InBound", "EROP/Dev/OutBound")
-        private var container: GenericContainer<*>? = null
+        const val USERNAME = "valtech"
+        const val PASSWORD = "Password"
+        const val PUBLIC_KEY_FILENAME = "ssh/printer_rsa.pub"
+        const val PRIVATE_KEY_FILENAME = "ssh/printer_rsa"
+        const val PORT = 22
+        const val IMAGE_NAME = "atmoz/sftp:debian"
+        const val USER_ID = 1001
+        const val GROUP_ID = 100
+        val DIRECTORIES = listOf("EROP/Dev/InBound", "EROP/Dev/OutBound")
+        var container: GenericContainer<*>? = null
 
-        private fun getPublicKeyResourceUrl(): URL? = ClassLoader.getSystemResource(PUBLIC_KEY_FILENAME)
+        fun remoteDirectory() = "sftp://$USERNAME@localhost:${getMappedPort()}/${DIRECTORIES[0]}"
 
-        fun getPrivateKeyResourceUrl(): URL? = ClassLoader.getSystemResource(PRIVATE_KEY_FILENAME)
+        fun getPublicKeyResourceUrl(): URL = ClassLoader.getSystemResource(PUBLIC_KEY_FILENAME)
+
+        fun getPrivateKeyResourceUrl(): URL = ClassLoader.getSystemResource(PRIVATE_KEY_FILENAME)
 
         fun getInstance(): GenericContainer<*> {
-            val publicKeyResourceUrl: URL = getPublicKeyResourceUrl()!!
+            val publicKeyResourceUrl: URL = getPublicKeyResourceUrl()
 
             if (container == null) {
                 container = GenericContainer(
@@ -38,12 +40,15 @@ class SftpContainerConfiguration {
                                     .build()
                         },
                 )
-                        .withFileSystemBind(publicKeyResourceUrl.file, "/home/$USER/.ssh/keys/id_rsa.pub", BindMode.READ_ONLY)
+                        .withFileSystemBind(publicKeyResourceUrl.file, "/home/$USERNAME/.ssh/keys/id_rsa.pub", BindMode.READ_ONLY)
                         .withExposedPorts(PORT)
-                        .withCommand("$USER:$PASSWORD:$USER_ID:$GROUP_ID:${DIRECTORIES.joinToString(",")}")
+                        .withCommand("$USERNAME:$PASSWORD:$USER_ID:$GROUP_ID:${DIRECTORIES.joinToString(",")}")
             }
+            container!!.start()
             return container!!
         }
+
+        fun getMappedPort() = container!!.getMappedPort(22)
     }
 
     @Bean
