@@ -31,8 +31,22 @@ internal class SftpIntegrationTest {
 
         outputConnectionString(mappedPort, privateKeyResourceUrl)
 
-        val jsch = createJschWithPrivateKey(privateKeyResourceUrl)
-        val response = getResponse(jsch, mappedPort)
+        val sshClient = SshClient(
+            username = SftpContainerConfiguration.USERNAME,
+            privateKeyResourceUrl = SftpContainerConfiguration.getPrivateKeyResourceUrl(),
+            host = SftpContainerConfiguration.HOSTNAME,
+            port = sftpInstance.getMappedPort(22),
+        )
+        val cmd: (ChannelSftp) -> Vector<LsEntry> = {
+            try {
+                it.connect(CHANNEL_TIMEOUT)
+                it.ls("/EROP/Dev") as Vector<LsEntry>
+            } finally {
+                it.exit()
+            }
+        }
+        val response: Vector<LsEntry> =
+            sshClient.createSession<ChannelSftp, Vector<ChannelSftp.LsEntry>>(cmd)
 
         logger.info { "ls = $response" }
         assertThat(response).hasSize(4)

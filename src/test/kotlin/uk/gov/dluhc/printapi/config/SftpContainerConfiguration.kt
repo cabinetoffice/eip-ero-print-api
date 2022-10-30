@@ -17,6 +17,7 @@ class SftpContainerConfiguration {
         const val PASSWORD = "Password"
         const val PUBLIC_KEY_FILENAME = "ssh/printer_rsa.pub"
         const val PRIVATE_KEY_FILENAME = "ssh/printer_rsa"
+        const val HOSTNAME = "localhost"
         const val PORT = 22
         const val IMAGE_NAME = "atmoz/sftp:debian"
         const val USER_ID = 1001
@@ -24,7 +25,7 @@ class SftpContainerConfiguration {
         val DIRECTORIES = listOf("EROP/Dev/InBound", "EROP/Dev/OutBound")
         var container: GenericContainer<*>? = null
 
-        fun getConnectionUrl() = "sftp://$USERNAME@localhost:${getMappedPort()}/${DIRECTORIES[0]}"
+        fun getConnectionUrl() = "sftp://$USERNAME@HOSTNAME:${getMappedPort()}/${DIRECTORIES[0]}"
 
         fun getPublicKeyResourceUrl(): URL = ClassLoader.getSystemResource(PUBLIC_KEY_FILENAME)
 
