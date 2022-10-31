@@ -20,11 +20,11 @@ class SshClient(
     }
 
     companion object {
-        fun lsCommand(targetDirectory: String = ""): (ChannelSftp) -> Vector<ChannelSftp.LsEntry>  =
+        fun createLsCommand(targetDirectory: String = ""): (ChannelSftp) -> Vector<ChannelSftp.LsEntry>  =
             { it.ls(targetDirectory) as Vector<ChannelSftp.LsEntry> }
     }
 
-    fun <R> createSession(cmd: (ChannelSftp) -> R): R {
+    fun <R> createSessionAndExecute(cmd: (ChannelSftp) -> R): R {
         val runCommandResponse: R
         jsch.getSession(username, host, port).run {
             try {
