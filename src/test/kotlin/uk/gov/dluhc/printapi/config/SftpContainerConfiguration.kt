@@ -6,7 +6,6 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.images.builder.ImageFromDockerfile
 import java.net.URL
 
-
 /**
  * Configuration class exposing an sftp service.
  */
@@ -23,13 +22,8 @@ class SftpContainerConfiguration {
         const val USER_ID = 1001
         const val GROUP_ID = 100
         val DIRECTORIES = listOf("EROP/Dev/InBound", "EROP/Dev/OutBound")
+
         var container: GenericContainer<*>? = null
-
-        fun getConnectionUrl() = "sftp://$USERNAME@HOSTNAME:${getMappedPort()}/${DIRECTORIES[0]}"
-
-        fun getPublicKeyResourceUrl(): URL = ClassLoader.getSystemResource(PUBLIC_KEY_FILENAME)
-
-        fun getPrivateKeyResourceUrl(): URL = ClassLoader.getSystemResource(PRIVATE_KEY_FILENAME)
 
         fun getInstance(): GenericContainer<*> {
             synchronized(this) {
@@ -52,9 +46,15 @@ class SftpContainerConfiguration {
         }
 
         fun getMappedPort() = container!!.getMappedPort(22)
+
+        fun getConnectionUrl() = "sftp://$USERNAME@HOSTNAME:${getMappedPort()}/${DIRECTORIES[0]}"
+
+        fun getPublicKeyResourceUrl(): URL = ClassLoader.getSystemResource(PUBLIC_KEY_FILENAME)
+
+        fun getPrivateKeyResourceUrl(): URL = ClassLoader.getSystemResource(PRIVATE_KEY_FILENAME)
     }
 
-    @Bean
+//    @Bean
 //    @Lazy
     fun sftpContainer(): GenericContainer<*> = getInstance()
 
